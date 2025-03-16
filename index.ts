@@ -1,3 +1,4 @@
+import type { CoreMessage, CoreUserMessage } from "ai";
 import chalk from "chalk";
 import prompts from "prompts";
 import { ACTION_TYPES, LLM_PROVIDERS } from "./constants";
@@ -35,6 +36,7 @@ const questions: Array<prompts.PromptObject> = [
 const { type, provider } = await prompts(questions);
 
 const info = chalk.greenBright(`✨ Press Ctrl + C to terminate the repl`);
+const messages: CoreMessage[] = [];
 console.log(info, "\n");
 
 while (true) {
@@ -49,5 +51,12 @@ while (true) {
   });
   if (!prompt) break;
 
-  await ask(prompt, provider, type);
+  const userMessage: CoreUserMessage = {
+    role: "user",
+    content: prompt,
+  };
+  messages.push(userMessage);
+
+  const responseMessages = await ask(messages, provider, type);
+  messages.push(...responseMessages);
 }

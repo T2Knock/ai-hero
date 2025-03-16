@@ -1,6 +1,6 @@
 import { google } from "@ai-sdk/google";
 import { openai } from "@ai-sdk/openai";
-import { generateText } from "ai";
+import { generateText, type CoreMessage, type CoreUserMessage } from "ai";
 import { marked, type MarkedExtension } from "marked";
 import { markedTerminal } from "marked-terminal";
 import {
@@ -15,21 +15,22 @@ import {
 marked.use(markedTerminal() as MarkedExtension);
 
 export const ask = async (
-  prompt: string,
+  messages: CoreMessage[],
   provider: LlmProviders,
   actionType: ActionTypes,
 ) => {
   const model = getModel(provider);
   const system = getActionSystemPrompts(actionType);
 
-  const { text } = await generateText({
+  const { text, response } = await generateText({
     model,
-    prompt,
     system,
+    messages,
   });
 
   const parsedText = await marked.parse(text);
-  console.log("\n", parsedText, "\n");
+  console.log("\n", parsedText);
+  return response.messages;
 };
 
 const getModel = (provider: LlmProviders) => {
