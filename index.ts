@@ -1,23 +1,53 @@
-import { google } from "@ai-sdk/google";
-import { streamText } from "ai";
-import { chatPrompts } from "./prompts";
+import chalk from "chalk";
+import prompts from "prompts";
+import { ACTION_TYPES, LLM_PROVIDERS } from "./constants";
+import { ask } from "./models";
 
-const model = google("gemini-2.0-flash-001");
+const questions: Array<prompts.PromptObject> = [
+  {
+    type: "select",
+    name: "type",
+    message: "Pick prompts action",
+    choices: [
+      { title: "Translate to vietnamese", value: ACTION_TYPES.translation },
+      { title: "Chat with the wise one", value: ACTION_TYPES.question },
+    ],
+    validate: (type) =>
+      !Object.values(ACTION_TYPES).includes(type)
+        ? "Pick a valid action pls!!"
+        : true,
+  },
+  {
+    type: "select",
+    name: "provider",
+    message: "Pick llm provider",
+    choices: [
+      { title: "Open AI", value: LLM_PROVIDERS.openAI },
+      { title: "Google Gemini", value: LLM_PROVIDERS.gemini },
+    ],
+    validate: (provider) =>
+      !Object.values(LLM_PROVIDERS).includes(provider)
+        ? "Pick a valid provider pls!!"
+        : true,
+  },
+];
 
-export const answerMyQuestion = async (prompt: string) => {
-  const { textStream } = streamText({
-    model,
-    prompt,
-    system: chatPrompts,
+const { type, provider } = await prompts(questions);
+
+const info = chalk.greenBright(`✨ Press Ctrl + C to terminate the repl`);
+console.log(info, "\n");
+
+while (true) {
+  const { prompt } = await prompts({
+    type: "text",
+    name: "prompt",
+    message: "Prompt: ",
+    validate: (prompt) =>
+      typeof prompt == "string"
+        ? true
+        : "That not a prompts dude ! Try again maybe",
   });
+  if (!prompt) break;
 
-  for await (const textPart of textStream) {
-    console.log(textPart);
-  }
-};
-
-await answerMyQuestion(
-  `Bro when the heck did is the vietname war end and how ? 
-
- ✨ My homies we are cooking let's go !! time to make war happen again WW3 is comming`,
-);
+  await ask(prompt, provider, type);
+}

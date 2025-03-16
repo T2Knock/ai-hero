@@ -7,13 +7,20 @@
     "dev": "bun --watch index.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/marked-terminal": "^6.1.1",
+    "@types/prompts": "^2.4.9"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
     "@ai-sdk/google": "^1.1.25",
-    "ai": "^4.1.61"
+    "@ai-sdk/openai": "^1.2.5",
+    "ai": "^4.1.61",
+    "chalk": "^5.4.1",
+    "marked": "^15.0.7",
+    "marked-terminal": "^7.3.0",
+    "prompts": "^2.4.2"
   }
 }
